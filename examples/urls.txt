@@ -1,0 +1,6 @@
+# Offline demo URLs. These do not need to exist when --dry-run is used.
+https://firecrawl.dev
+https://example.com/javascript-app
+https://example.com/blocked-by-waf
+https://example.com/report.pdf
+

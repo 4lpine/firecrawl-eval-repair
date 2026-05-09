@@ -1,0 +1,7 @@
+{
+  "formats": ["markdown", "links"],
+  "onlyMainContent": true,
+  "timeout": 60000,
+  "proxy": "auto"
+}
+

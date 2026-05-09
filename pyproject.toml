@@ -1,0 +1,16 @@
+[project]
+name = "firecrawl-eval-repair"
+version = "0.1.0"
+description = "A Firecrawl evaluation and retry recommendation harness."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Firecrawl eval harness" }]
+dependencies = []
+
+[project.scripts]
+fc-eval = "fc_harness.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-p no:cacheprovider"
