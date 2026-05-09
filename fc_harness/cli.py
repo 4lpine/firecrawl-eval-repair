@@ -12,7 +12,14 @@ from .env import load_dotenv
 from .firecrawl import FirecrawlClient
 from .models import ResultRecord
 from .recommend import recommend_retries
-from .report import read_jsonl, write_jsonl, write_markdown_report, write_summary_json
+from .report import (
+    read_jsonl,
+    write_findings_report,
+    write_jsonl,
+    write_markdown_report,
+    write_summary_json,
+)
+from .retry import choose_retry_recommendation, merge_retry_options
 from .scoring import score_attempt
 
 
@@ -54,6 +61,22 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--only-main-content", action=argparse.BooleanOptionalAction, default=None)
     run.add_argument("--max-urls", type=int, default=None)
     run.add_argument("--options-json", type=Path, default=None)
+    run.add_argument(
+        "--retry-recommendations",
+        action="store_true",
+        help="Run a second Firecrawl scrape with the top eligible recommendation.",
+    )
+    run.add_argument(
+        "--retry-threshold",
+        type=int,
+        default=85,
+        help="Only retry Firecrawl attempts below this score.",
+    )
+    run.add_argument(
+        "--allow-costly-retries",
+        action="store_true",
+        help="Allow recommendations with cost notes, such as enhanced proxy or OCR.",
+    )
 
     report = subparsers.add_parser("report", help="Regenerate a report from JSONL.")
     report.add_argument("--input", required=True, type=Path)
@@ -89,7 +112,34 @@ def run_command(args: argparse.Namespace) -> None:
         else:
             assert client is not None
             attempt = client.scrape(url, options)
-        records.append(record_from_attempt(attempt))
+        record = record_from_attempt(attempt)
+        records.append(record)
+
+        if should_retry(args, record):
+            assert client is not None
+            recommendation = choose_retry_recommendation(
+                record, allow_costly=args.allow_costly_retries
+            )
+            if recommendation is not None:
+                retry_options = merge_retry_options(options, recommendation.options)
+                retry_attempt = client.scrape(url, retry_options)
+                retry_attempt.engine = "firecrawl_retry"
+                retry_attempt.config = retry_options
+                retry_attempt.metadata = dict(retry_attempt.metadata)
+                retry_attempt.metadata.update(
+                    {
+                        "retry_for_url": url,
+                        "retry_name": recommendation.name,
+                        "retry_reason": recommendation.why,
+                        "initial_score": record.score.score,
+                        "initial_flags": record.score.flags,
+                    }
+                )
+                retry_record = record_from_attempt(retry_attempt)
+                retry_record.attempt.metadata["retry_score_delta"] = (
+                    retry_record.score.score - record.score.score
+                )
+                records.append(retry_record)
 
         if args.compare_baseline and not args.dry_run:
             baseline_attempt = fetch_baseline(url)
@@ -97,10 +147,12 @@ def run_command(args: argparse.Namespace) -> None:
 
     write_jsonl(records, args.out / "results.jsonl")
     write_markdown_report(records, args.out / "report.md")
+    write_findings_report(records, args.out / "findings.md")
     write_summary_json(records, args.out / "summary.json")
 
     print(f"Wrote {args.out / 'results.jsonl'}")
     print(f"Wrote {args.out / 'report.md'}")
+    print(f"Wrote {args.out / 'findings.md'}")
     print(f"Wrote {args.out / 'summary.json'}")
 
 
@@ -109,9 +161,11 @@ def report_command(args: argparse.Namespace) -> None:
     records = [record_from_attempt(record.attempt) for record in read_jsonl(args.input)]
     write_jsonl(records, args.out / "results.jsonl")
     write_markdown_report(records, args.out / "report.md")
+    write_findings_report(records, args.out / "findings.md")
     write_summary_json(records, args.out / "summary.json")
     print(f"Wrote {args.out / 'results.jsonl'}")
     print(f"Wrote {args.out / 'report.md'}")
+    print(f"Wrote {args.out / 'findings.md'}")
     print(f"Wrote {args.out / 'summary.json'}")
 
 
@@ -153,6 +207,16 @@ def build_options(args: argparse.Namespace) -> dict[str, Any]:
 
 def parse_formats(value: str) -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def should_retry(args: argparse.Namespace, record: ResultRecord) -> bool:
+    if not args.retry_recommendations:
+        return False
+    if args.dry_run or args.baseline_only:
+        return False
+    if record.attempt.engine != "firecrawl":
+        return False
+    return record.score.score < args.retry_threshold
 
 
 if __name__ == "__main__":

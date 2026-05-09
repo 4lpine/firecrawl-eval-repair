@@ -1,0 +1,14 @@
+# A starter corpus for finding extraction-quality edges.
+# Keep this small for live runs; each URL can use one Firecrawl scrape plus
+# one retry when --retry-recommendations is enabled.
+https://firecrawl.dev
+https://docs.firecrawl.dev/features/scrape
+https://docs.firecrawl.dev/features/interact
+https://github.com/firecrawl/firecrawl
+https://www.npmjs.com/package/firecrawl
+https://pypi.org/project/firecrawl-py/
+https://en.wikipedia.org/wiki/Web_scraping
+https://www.ycombinator.com/companies/firecrawl
+https://docs.stripe.com/payments/quickstart
+https://example.com
+

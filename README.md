@@ -78,6 +78,20 @@ Run with stricter freshness:
 python -m fc_harness run --urls examples/urls.txt --out runs/fresh --max-age-ms 0
 ```
 
+Run Firecrawl with automatic second-pass retries:
+
+```powershell
+python -m fc_harness run `
+  --urls examples/hard_urls.txt `
+  --out runs/live-retry `
+  --compare-baseline `
+  --retry-recommendations `
+  --retry-threshold 90
+```
+
+This writes `findings.md`, which summarizes before/after score deltas for retry
+attempts.
+
 Ask Firecrawl for extra formats:
 
 ```powershell
@@ -102,6 +116,7 @@ Each run writes:
 
 - `results.jsonl`: machine-readable attempts, scores, and recommendations
 - `report.md`: human-readable benchmark summary
+- `findings.md`: before/after retry findings, when retry attempts exist
 - `summary.json`: aggregate metrics
 
 ## Ethical Use

@@ -17,17 +17,18 @@ The current MVP:
 - scores markdown quality with transparent heuristics
 - flags common failure modes
 - recommends next-attempt Firecrawl configs
+- optionally runs a second-pass Firecrawl retry with the top eligible config
 - writes JSONL, summary JSON, and a markdown report
+- writes a findings report with before/after retry deltas
 
 ## Next Features
 
-1. Add second-pass retries and score deltas.
-2. Add schema extraction validation for JSON mode.
-3. Add corpus tags, such as `docs`, `pdf`, `spa`, `ecommerce`, and `blocked`.
-4. Add screenshot-aware checks for visual blank pages.
-5. Add a small static HTML dashboard for comparing attempts.
-6. Add GitHub Actions support for regression testing against a fixed corpus.
-7. Add export that opens a high-quality Firecrawl GitHub issue template.
+1. Add schema extraction validation for JSON mode.
+2. Add corpus tags, such as `docs`, `pdf`, `spa`, `ecommerce`, and `blocked`.
+3. Add screenshot-aware checks for visual blank pages.
+4. Add a small static HTML dashboard for comparing attempts.
+5. Add GitHub Actions support for regression testing against a fixed corpus.
+6. Add export that opens a high-quality Firecrawl GitHub issue template.
 
 ## What To Show Firecrawl
 
@@ -40,4 +41,3 @@ and known difficult sites. Send only the strongest findings:
 - suggested retry config
 - improved score after retry
 - whether the issue is docs, product, parser, browser, or infra related
-
