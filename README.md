@@ -53,6 +53,9 @@ small-corpus Firecrawl run. The current implementation evaluates `/v2/scrape`;
 it does not yet benchmark `/crawl`, `/map`, `/search`, `/parse`, `/interact`,
 or `/agent`.
 
+See [docs/sample_findings.md](docs/sample_findings.md) for a concrete live
+`findings.md` example.
+
 ## What It Measures
 
 For each scrape attempt, the harness records:
