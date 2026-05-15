@@ -18,10 +18,11 @@ an average score of 92.2, while the naive baseline averaged 71.1 and failed on
 npm with a 403. Firecrawl beat the baseline on 7/10 URLs, with the biggest wins
 on npm, PyPI, and Stripe docs.
 
-The automatic retry loop also surfaced a useful next problem: three generic
-retry configs ran successfully but did not improve score, which suggests the
-repair layer needs more domain-aware retry strategies instead of only generic
-tag filters.
+The automatic retry loop also produced a concrete repair win after I added
+domain-aware strategies: Stripe docs improved from 84 to 92 by targeting
+semantic `main`/`article` regions and excluding navigation/table-of-contents
+chrome. It also now detects explicit unsupported-site responses, so it avoids
+wasting enhanced-proxy retries on cases like Reddit.
 
 I am interested in working with Firecrawl. I know this is not a full benchmark
 yet, but I think the direction is useful: a repeatable loop for finding weak

@@ -63,6 +63,22 @@ def test_local_socket_denial_is_environment_flag() -> None:
     assert "blocked_or_captcha" not in score.flags
 
 
+def test_unsupported_site_gets_specific_flag() -> None:
+    attempt = ScrapeAttempt(
+        url="https://www.reddit.com/r/webscraping/",
+        engine="firecrawl",
+        ok=False,
+        latency_ms=10,
+        error="We apologize for the inconvenience but we do not support this site.",
+        status_code=403,
+    )
+
+    score = score_attempt(attempt)
+
+    assert "unsupported_site" in score.flags
+    assert "request_failed" in score.flags
+
+
 def test_boilerplate_heavy_flag() -> None:
     attempt = ScrapeAttempt(
         url="https://example.com",

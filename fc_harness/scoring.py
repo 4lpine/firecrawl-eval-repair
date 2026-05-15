@@ -63,6 +63,8 @@ def score_attempt(attempt: ScrapeAttempt) -> QualityScore:
     flags: list[str] = []
     if not attempt.ok:
         flags.append("request_failed")
+    if _unsupported_site(attempt.error):
+        flags.append("unsupported_site")
     if _local_network_denied(attempt.error):
         flags.append("local_network_blocked")
     if attempt.status_code and attempt.status_code >= 400:
@@ -152,6 +154,11 @@ def _looks_blocked(
 def _local_network_denied(error: str) -> bool:
     lower = error.lower()
     return any(term in lower for term in LOCAL_NETWORK_DENIED_TERMS)
+
+
+def _unsupported_site(error: str) -> bool:
+    lower = error.lower()
+    return "do not support this site" in lower or "unsupported site" in lower
 
 
 def _looks_loading_state(word_count: int, loading_hits: int, lower_text: str) -> bool:

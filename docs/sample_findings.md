@@ -42,3 +42,15 @@ scrapes, and the repair layer needs domain-aware strategies.
 | `https://docs.stripe.com/payments/quickstart` | `retry_with_boilerplate_filters` | 84 | 84 | +0 |
 | `https://example.com` | `retry_full_page_with_debug_formats` | 54 | 54 | +0 |
 
+## Domain-Aware Retry Follow-Up
+
+After adding domain-aware retry strategies, an edge-corpus run produced a
+positive before/after result:
+
+| URL | Recommendation | Initial | Retry | Delta |
+| --- | --- | ---: | ---: | ---: |
+| `https://docs.stripe.com/payments/quickstart` | `retry_docs_main_region` | 84 | 92 | +8 |
+
+The retry restricted extraction to semantic main/article regions and excluded
+navigation, aside, header, footer, breadcrumb, and table-of-contents elements.
+The initial `boilerplate_heavy` flag cleared on retry.

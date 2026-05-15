@@ -40,3 +40,16 @@ This is a working scrape-eval harness, not a full Firecrawl product benchmark
 yet. It currently evaluates `/v2/scrape`. The harness now supports an automatic
 second-pass retry loop via `--retry-recommendations`, which measures before/after
 score deltas for recommended configs and writes a `findings.md` report.
+
+## Retry Win
+
+A later edge-corpus run confirmed a concrete before/after improvement:
+
+- URL: `https://docs.stripe.com/payments/quickstart`
+- Initial score: 84
+- Retry score: 92
+- Delta: +8
+- Recommendation: `retry_docs_main_region`
+
+The same run also detected a Firecrawl `unsupported_site` response for Reddit
+and skipped retrying it, avoiding a wasted enhanced-proxy attempt.

@@ -6,7 +6,7 @@ from typing import Any
 from .models import Recommendation, ResultRecord
 
 
-DIAGNOSTIC_ONLY_KEYS = {"run", "setEnv"}
+DIAGNOSTIC_ONLY_KEYS = {"run", "setEnv", "noRetry"}
 
 
 def merge_retry_options(
@@ -34,4 +34,3 @@ def choose_retry_recommendation(
 
 def has_diagnostic_only_options(recommendation: Recommendation) -> bool:
     return any(key in recommendation.options for key in DIAGNOSTIC_ONLY_KEYS)
-

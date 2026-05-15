@@ -39,6 +39,18 @@ def recommend_retries(
             )
         ]
 
+    if "unsupported_site" in flags:
+        return [
+            Recommendation(
+                name="unsupported_site_no_retry",
+                why=(
+                    "Firecrawl explicitly reported that this site is unsupported. "
+                    "Retrying with proxy or rendering options is unlikely to help."
+                ),
+                options={"noRetry": True},
+            )
+        ]
+
     recs.extend(domain_aware_recommendations(attempt, score))
 
     if "blocked_or_captcha" in flags or _is_network_block(attempt):

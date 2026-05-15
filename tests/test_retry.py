@@ -52,3 +52,14 @@ def test_choose_retry_skips_diagnostic_options() -> None:
 
     assert choose_retry_recommendation(record).name == "usable"
 
+
+def test_choose_retry_skips_no_retry_marker() -> None:
+    record = ResultRecord(
+        attempt=ScrapeAttempt("https://example.com", "firecrawl", False, 100),
+        score=QualityScore(0, 0, 0, 0, 0, 0, 0, 0, 0, ["unsupported_site"]),
+        recommendations=[
+            Recommendation("unsupported", "Do not retry.", {"noRetry": True}),
+        ],
+    )
+
+    assert choose_retry_recommendation(record) is None

@@ -21,6 +21,7 @@ The current MVP:
 - prefers domain-aware retry configs for known high-signal targets such as
   Wikipedia article bodies, Stripe docs main regions, PyPI project pages, and
   npm package pages
+- detects explicit unsupported-site responses and avoids wasting retry attempts
 - writes JSONL, summary JSON, and a markdown report
 - writes a findings report with before/after retry deltas
 

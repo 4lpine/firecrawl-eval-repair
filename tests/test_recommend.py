@@ -65,6 +65,22 @@ def test_local_network_denial_does_not_recommend_enhanced_proxy() -> None:
     assert "retry_with_enhanced_proxy" not in names
 
 
+def test_unsupported_site_does_not_recommend_proxy_retry() -> None:
+    attempt = ScrapeAttempt(
+        url="https://www.reddit.com/r/webscraping/",
+        engine="firecrawl",
+        ok=False,
+        latency_ms=50,
+        error="We apologize for the inconvenience but we do not support this site.",
+        status_code=403,
+    )
+
+    names = names_for(attempt)
+
+    assert "unsupported_site_no_retry" in names
+    assert "retry_with_enhanced_proxy" not in names
+
+
 def test_wikipedia_boilerplate_gets_domain_aware_retry_first() -> None:
     attempt = ScrapeAttempt(
         url="https://en.wikipedia.org/wiki/Web_scraping",
