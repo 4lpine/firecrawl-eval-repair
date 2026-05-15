@@ -59,6 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--max-age-ms", type=int, default=None)
     run.add_argument("--proxy", choices=["basic", "enhanced", "auto"], default=None)
     run.add_argument("--only-main-content", action=argparse.BooleanOptionalAction, default=None)
+    run.add_argument("--start-at", type=int, default=0)
     run.add_argument("--max-urls", type=int, default=None)
     run.add_argument("--options-json", type=Path, default=None)
     run.add_argument(
@@ -87,9 +88,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def run_command(args: argparse.Namespace) -> None:
     load_dotenv()
-    urls = read_urls(args.urls)
-    if args.max_urls is not None:
-        urls = urls[: args.max_urls]
+    urls = select_urls(read_urls(args.urls), args.start_at, args.max_urls)
 
     args.out.mkdir(parents=True, exist_ok=True)
     options = build_options(args)
@@ -183,6 +182,17 @@ def read_urls(path: Path) -> list[str]:
             continue
         urls.append(clean)
     return urls
+
+
+def select_urls(urls: list[str], start_at: int = 0, max_urls: int | None = None) -> list[str]:
+    if start_at < 0:
+        raise SystemExit("--start-at must be greater than or equal to 0.")
+    if max_urls is not None and max_urls < 0:
+        raise SystemExit("--max-urls must be greater than or equal to 0.")
+    selected = urls[start_at:]
+    if max_urls is not None:
+        selected = selected[:max_urls]
+    return selected
 
 
 def build_options(args: argparse.Namespace) -> dict[str, Any]:

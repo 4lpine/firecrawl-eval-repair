@@ -106,6 +106,20 @@ python -m fc_harness run `
   --allow-costly-retries
 ```
 
+Run the broader 200 URL corpus in batches:
+
+```powershell
+python -m fc_harness run `
+  --urls examples/benchmark_200_urls.txt `
+  --out runs/benchmark-200-000 `
+  --start-at 0 `
+  --max-urls 50 `
+  --compare-baseline
+```
+
+See [docs/benchmark_200_plan.md](docs/benchmark_200_plan.md) for the full
+batch plan and retry guidance.
+
 Ask Firecrawl for extra formats:
 
 ```powershell
