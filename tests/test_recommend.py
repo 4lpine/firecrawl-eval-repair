@@ -63,3 +63,43 @@ def test_local_network_denial_does_not_recommend_enhanced_proxy() -> None:
 
     assert "run_from_network_enabled_environment" in names
     assert "retry_with_enhanced_proxy" not in names
+
+
+def test_wikipedia_boilerplate_gets_domain_aware_retry_first() -> None:
+    attempt = ScrapeAttempt(
+        url="https://en.wikipedia.org/wiki/Web_scraping",
+        engine="firecrawl",
+        ok=True,
+        latency_ms=50,
+        markdown=(
+            "# Web scraping\n\n"
+            "Navigation menu. Privacy policy. Terms of service. Subscribe. "
+            + "Article content. " * 500
+        ),
+        status_code=200,
+    )
+    score = score_attempt(attempt)
+    recs = recommend_retries(attempt, score)
+
+    assert recs[0].name == "retry_wikipedia_article_body"
+    assert "#mw-content-text" in recs[0].options["includeTags"]
+
+
+def test_stripe_docs_boilerplate_gets_domain_aware_retry_first() -> None:
+    attempt = ScrapeAttempt(
+        url="https://docs.stripe.com/payments/quickstart",
+        engine="firecrawl",
+        ok=True,
+        latency_ms=50,
+        markdown=(
+            "# Quickstart\n\n"
+            "Navigation menu. Privacy policy. Terms of service. Subscribe. "
+            + "Payment docs. " * 500
+        ),
+        status_code=200,
+    )
+    score = score_attempt(attempt)
+    recs = recommend_retries(attempt, score)
+
+    assert recs[0].name == "retry_docs_main_region"
+    assert "main" in recs[0].options["includeTags"]

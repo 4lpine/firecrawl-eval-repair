@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from urllib.parse import urlparse
+
 from .models import QualityScore, Recommendation, ScrapeAttempt
 
 
@@ -36,6 +38,8 @@ def recommend_retries(
                 },
             )
         ]
+
+    recs.extend(domain_aware_recommendations(attempt, score))
 
     if "blocked_or_captcha" in flags or _is_network_block(attempt):
         recs.append(
@@ -161,6 +165,106 @@ def recommend_retries(
         )
 
     return recs[:4]
+
+
+def domain_aware_recommendations(
+    attempt: ScrapeAttempt, score: QualityScore
+) -> list[Recommendation]:
+    flags = set(score.flags)
+    parsed = urlparse(attempt.url)
+    host = parsed.netloc.lower()
+    recs: list[Recommendation] = []
+
+    if "boilerplate_heavy" in flags and host.endswith("wikipedia.org"):
+        recs.append(
+            Recommendation(
+                name="retry_wikipedia_article_body",
+                why=(
+                    "Wikipedia pages have stable content wrappers. Restricting "
+                    "the scrape to article-body selectors can remove sidebar, "
+                    "navigation, citation tooling, and footer noise."
+                ),
+                options={
+                    "onlyMainContent": False,
+                    "includeTags": ["#mw-content-text", ".mw-parser-output"],
+                    "excludeTags": [
+                        ".navbox",
+                        ".metadata",
+                        ".reflist",
+                        ".printfooter",
+                        ".mw-editsection",
+                        "table.sidebar",
+                    ],
+                    "formats": ["markdown", "links"],
+                    "timeout": 60000,
+                },
+            )
+        )
+
+    if "boilerplate_heavy" in flags and host == "docs.stripe.com":
+        recs.append(
+            Recommendation(
+                name="retry_docs_main_region",
+                why=(
+                    "The Stripe docs page was useful but navigation-heavy. "
+                    "Restricting extraction to semantic main/article regions "
+                    "is more targeted than generic layout exclusions."
+                ),
+                options={
+                    "onlyMainContent": False,
+                    "includeTags": ["main", "article", "[role=\"main\"]"],
+                    "excludeTags": [
+                        "nav",
+                        "aside",
+                        "footer",
+                        "header",
+                        "[aria-label=\"Breadcrumb\"]",
+                        "[aria-label=\"Table of contents\"]",
+                    ],
+                    "formats": ["markdown", "links"],
+                    "timeout": 60000,
+                },
+            )
+        )
+
+    if ("short_content" in flags or "no_structure" in flags) and host == "pypi.org":
+        recs.append(
+            Recommendation(
+                name="retry_pypi_project_main",
+                why=(
+                    "PyPI project pages expose package metadata and long "
+                    "descriptions in stable main content containers."
+                ),
+                options={
+                    "onlyMainContent": False,
+                    "includeTags": ["main", ".project-description", ".vertical-tabs"],
+                    "excludeTags": ["nav", "footer", "header", ".sponsors"],
+                    "formats": ["markdown", "links"],
+                    "timeout": 60000,
+                },
+            )
+        )
+
+    if "short_content" in flags and host in {"www.npmjs.com", "npmjs.com"}:
+        recs.append(
+            Recommendation(
+                name="retry_npm_package_main",
+                why=(
+                    "npm package pages have structured package metadata and "
+                    "README regions that are better targeted directly."
+                ),
+                options={
+                    "onlyMainContent": False,
+                    "includeTags": ["main", "#readme", "article"],
+                    "excludeTags": ["nav", "footer", "header"],
+                    "formats": ["markdown", "links"],
+                    "waitFor": 1500,
+                    "timeout": 60000,
+                },
+            )
+        )
+
+    return recs
 
 
 def _is_network_block(attempt: ScrapeAttempt) -> bool:

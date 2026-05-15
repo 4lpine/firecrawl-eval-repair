@@ -95,6 +95,17 @@ python -m fc_harness run `
 This writes `findings.md`, which summarizes before/after score deltas for retry
 attempts.
 
+Run a smaller edge-case corpus intended to find retry opportunities:
+
+```powershell
+python -m fc_harness run `
+  --urls examples/edge_urls.txt `
+  --out runs/edge-retry `
+  --retry-recommendations `
+  --retry-threshold 95 `
+  --allow-costly-retries
+```
+
 Ask Firecrawl for extra formats:
 
 ```powershell
