@@ -36,8 +36,9 @@ The current MVP:
 
 ## What To Show Firecrawl
 
-Run this on 50 to 100 URLs across docs, PDFs, modern JS apps, e-commerce pages,
-and known difficult sites. Send only the strongest findings:
+Use the 200 URL benchmark across docs, package pages, GitHub repos, reference
+pages, government and standards pages, blogs, product pages, and difficult
+dynamic/listing pages. Send only the strongest findings:
 
 - URL
 - initial Firecrawl score

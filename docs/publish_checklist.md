@@ -28,4 +28,4 @@ https://github.com/4lpine/firecrawl-eval-repair.git
 ```
 
 Before emailing Firecrawl, make sure the repository is public and that
-`docs/live_eval_summary.md` renders correctly on GitHub.
+`docs/benchmark_200_results.md` renders correctly on GitHub.
