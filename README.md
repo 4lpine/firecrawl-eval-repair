@@ -53,6 +53,9 @@ small-corpus Firecrawl run. The current implementation evaluates `/v2/scrape`;
 it does not yet benchmark `/crawl`, `/map`, `/search`, `/parse`, `/interact`,
 or `/agent`.
 
+See [docs/benchmark_200_results.md](docs/benchmark_200_results.md) for the
+larger 200 URL live benchmark summary.
+
 See [docs/sample_findings.md](docs/sample_findings.md) for a concrete live
 `findings.md` example.
 
