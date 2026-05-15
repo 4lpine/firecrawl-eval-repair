@@ -143,9 +143,6 @@ def _looks_blocked(
     if not attempt.ok:
         return True
 
-    # Long successful pages often discuss anti-bot systems in normal content.
-    # Treat keyword-only matches as suspicious only when the page is short or
-    # the signal is repeated enough to dominate the extraction.
     if word_count < 300 and blocked_hits >= 1:
         return True
     return blocked_hits >= 4 and word_count < 1200
